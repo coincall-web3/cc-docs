@@ -1,6 +1,6 @@
 # Options Endpoint
 
-## Get Option Instruments(SIGNED)
+## Get Option Instruments
 
 Get all option instruments information.
 
@@ -58,7 +58,7 @@ Name | Type | Value | Required | Note
 ---- | ---- | ----- | -------- | ----
 baseCurrency | string | BTC | true | option base currency
 
-## Get Option Chain(SIGNED)
+## Get Option Chain
 
 Get option chain
 
@@ -147,10 +147,10 @@ Get option chain
 
 Name | Type | Value | Required | Note
 ---- | ---- | ----- | -------- | ----
-endTime | long | 1666771200000 | true | Expiration time(timestamp)
+endTime | long | 1666771200000 | false | Expiration time(timestamp)
 index | string | BTCUSD | true | Underlying symbol
 
-## Get Option Details(SIGNED)
+## Get Option Details
 
 Get option details
 
@@ -208,7 +208,7 @@ Name | Type | Value | Required | Note
 ---- | ---- | ----- | -------- | ----
 symbol | string | BTCUSD-24MAY22-48000-P | true | option symbol name
 
-## Get OrderBook(SIGNED)
+## Get OrderBook
 
 Get option order book for 100 depth
 
@@ -246,7 +246,7 @@ Name | Type | Value | Required | Note
 ---- | ---- | ----- | -------- | ----
 symbol | string | BTCUSD-26OCT22-15000-C | true | Option Name 
 
-## Get Last Trade(SIGNED)
+## Get Last Trade
 
 Get option last trade
 
@@ -365,6 +365,7 @@ symbol | string | BTCUSD-26OCT22-15000-C | true |  Option name
 qty | number | 0.5 | true | Quantity 
 price | number | 19000.01 | false | Price, required for limit orders
 stp | integer | 1 | false | Value: [1,2,3]
+reduceOnly | number | 1 | false | Reduce the position quantity only, 1 reduce only true, 0 reduce only false
 
 <!-- reduceOnly | number | 1 | false | Reduce the position quantity only, 1 reduce only true, 0 reduce only false -->
 
@@ -421,16 +422,16 @@ curl -X 'https://api.coincall.com/open/option/order/batchCreate/v1' \
     "i18nArgs": null,
     "data":
     	[{
-        "scode":0,
-        "smsg":"Success",
+        "code":0,
+        "msg":"Success",
         "i18nArgs":null,
-        "sdata":1663820914095300608
+        "data":1663820914095300608
     	},
     {
-        "scode":0,
-        "smsg":"Success",
+        "code":0,
+        "msg":"Success",
         "i18nArgs":null,
-        "sdata":1663820914095300609
+        "data":1663820914095300609
     }]
 }
 ```
@@ -1072,3 +1073,46 @@ For each modification request in the instruction:
 - Do not support modify the `clientOrderId`.
 - When the `qty` or `price` of a new order does not match order validation requirements, the modification will be rejected, and the original order will remain unchanged.
 - If the original order is partially filled and the new order quantity is less than or equal to the executed quantity, the original order will be fully filled.
+
+
+## Call-over settlement price public data
+
+Public data, no signature required, returns a certain currency, all call-over settlement prices, in reverse chronological order, queried before 8:00 UTC today, returns yesterday, the day before yesterday, until the first day with data (data only available after launch).
+
+**HTTP Request**
+
+`GET http://api.coincall.com/open/option/get-delivery-prices/V1`
+
+- 1S once
+
+**Parameter:**
+
+| **Parameter** | **Required** | **Type** | **Enum**         | **Description**                                                     |
+| ------------- | ------------ | -------- | ---------------- | ------------------------------------------------------------------- |
+| symbol        | TRUE         | string   | BTCUSD<br>ETHUSD | Index identifier, matches (base) cryptocurrency with quote currency |
+
+> Response:
+
+```JSON
+{
+  "code":0,
+    "msg":"Success",
+    "i18nArgs":null,
+    "data": [
+      {
+        "date": "2024-12-23",
+        "delivery_price": 7131.214606410254
+      },
+      {
+        "date": "2024-12-22",
+        "delivery_price": 7150.943217777777
+      },
+      {
+        "date": "2024-12-21",
+        "delivery_price": 7175.988445532345
+      },
+    ],
+    "records_total": 58
+  }
+}
+```
